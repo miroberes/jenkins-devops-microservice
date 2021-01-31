@@ -28,6 +28,11 @@ pipeline {
                 echo "Integration Test"
             }
         }
+        stage('Integration Test 2') {
+            steps {
+                echo "Integration Test 2"
+            }
+        }
     }
 }
 
