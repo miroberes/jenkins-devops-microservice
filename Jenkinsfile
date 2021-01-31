@@ -11,13 +11,18 @@
 // }
 
 pipeline {
-    // agent any
-    agent { docker 'maven:3.6.3' }
+    agent any
+    environment {
+        dockerHome = tool 'myDocker'
+        mavenHome = tool 'myMaven'
+        PATH = "$dockerHome/bin:$mavenHome/bin:$PATH"
+    }
     stages {
         stage('Build') {
             steps {
                 echo "Build"
                 sh 'mvn --version'
+                sh 'docker version'
             }
         }
         stage('Test') {
