@@ -18,6 +18,15 @@ pipeline {
         PATH = "$dockerHome/bin:$mavenHome/bin:$PATH"
     }
     stages {
+//        stage('CONFIGURE MAVEN') {
+//            steps {
+//                script {
+//                    initialize(this, config.build)
+
+//                    maven = buildToolWrapper.getTool('myMaven')
+//                }
+//            }
+//        }
         stage('Checkout') {
             steps {
                 sh 'mvn --version'
@@ -33,26 +42,36 @@ pipeline {
                 sh 'mvn clean compile'
             }
         }
-        stage('Test') {
-            steps {
-                sh 'mvn test'
-            }
-        }
-        stage('Integration Test') {
-            steps {
-                sh 'mvn failsafe:integration-test failsafe:verify'
-            }
-        }
-//        stage('Build docker image') {
+//        stage('Test') {
 //            steps {
-//                docker build -t allforsaledocker/currency-exchange-basic:0.0.1.SNAPSHOT
+//                sh 'mvn test'
 //            }
 //        }
-//        stage('Push docker image') {
+//        stage('Integration Test') {
 //            steps {
 //                sh 'mvn failsafe:integration-test failsafe:verify'
 //            }
 //        }
+        stage('Build docker image') {
+            steps {
+//                "docker build -t allforsaledocker/currency-exchange-basic:$env.BUILD_TAG"
+                sh 'mvn package -DskipTests'
+                script {
+//                    maven.buildPackages()
+                    dockerImage = docker.build("allforsaledocker/currency-exchange-basic:$env.BUILD_TAG")
+                }
+            }
+        }
+        stage('Push docker image') {
+            steps {
+                script {
+//                    docker.withRegistry('https://hub.docker.com', 'dockerhub') {
+                        dockerImage.push()
+                        dockerImage.push('lts')
+//                    }
+                }
+            }
+        }
     }
 }
 
